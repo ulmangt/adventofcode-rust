@@ -1,4 +1,4 @@
-use crate::advent2025::puzzle1::part1::{read_input_data,parse_input_data,InputDataError};
+use crate::advent2024::puzzle1::part1::{read_input_data,parse_input_data,InputDataError};
 
 pub fn solve( ) -> Result<usize,InputDataError> {
     let input_data = parse_input_data(read_input_data()? )?;
