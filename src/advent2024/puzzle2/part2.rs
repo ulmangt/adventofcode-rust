@@ -19,7 +19,7 @@ fn is_report_safe( report: Vec<u32> ) -> bool {
             return level_values_close( window ) && window[0] < window[1];
           });
 
-    let decreasing = all_but_1_removed( &report, |window| {
+    let decreasing = all_but_1_removed( &report, |window: &[u32]| {
             return level_values_close( window ) && window[1] < window[0];
           });
 
@@ -34,12 +34,12 @@ fn all_but_1_removed( list: &Vec<u32>, predicate: fn(&[u32]) -> bool ) -> bool {
 
     let mut skip_index = None;
     let mut i = 0;
-    while i < list.len()-1 {
+    while i < list.len()-2 {
         let predicate_value = predicate(&list[i..=i+1]);
 
         // if the predicate fails and we haven't already failed once,
         // try skipping either the v0 or v1 values
-        if skip_index.is_none() && !predicate_value && i < list.len()-2 {
+        if skip_index.is_none() && !predicate_value {
             let p_skip_0 = apply_predicate(i+1, i+2);
             let p_skip_1 = apply_predicate(i,i+2);
             // if both comparisons still fail after skipping, fail immediately
@@ -55,12 +55,16 @@ fn all_but_1_removed( list: &Vec<u32>, predicate: fn(&[u32]) -> bool ) -> bool {
             // if predicate passed after skipping v1, increment i an extra time
             // to skip over v1, as we are removing it
             else if p_skip_1 {
-                i += 1;
                 skip_index = Some(i+1);
+                i += 1;
             }
             else {
                 skip_index = Some(i);
             }
+        }
+        // if the predicate fails and we have already failed once, return false
+        else if skip_index.is_some() && !predicate_value {
+            return false;
         }
 
         i += 1;
@@ -73,11 +77,11 @@ fn all_but_1_removed( list: &Vec<u32>, predicate: fn(&[u32]) -> bool ) -> bool {
     //
     // if the second-last index was skipped, no more checks are necessary
     // because the last and third-last were already checked in the last while loop iteration
-    if skip_index.is_none() || skip_index.is_some_and( |i| i==list.len()-2 ) {
+    if skip_index.is_none() || skip_index.is_some_and( |si: usize| si==list.len()-2 ) {
         return true
     }
     // if we skipped an index besides the second-last, the second-last and last values must pass
     else { 
-        return apply_predicate( i-1, i );
+        return apply_predicate( list.len()-2, list.len()-1 );
     }
 }
