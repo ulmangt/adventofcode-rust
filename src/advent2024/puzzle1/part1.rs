@@ -13,7 +13,7 @@ pub fn solve( ) -> Result<u32,InputDataError> {
 }
 
 pub fn read_input_data( ) -> Result<Vec<String>,InputDataError> {
-    let asset_path = format!("{}/assets/2025/puzzle1/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
+    let asset_path = format!("{}/assets/2024/puzzle1/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
 
     let file = File::open(asset_path)?;
     let reader = BufReader::new(file);

@@ -16,12 +16,12 @@ pub fn solve( ) -> Result<usize, InputDataError> {
 fn is_report_safe( report: Vec<u32> ) -> bool {
 
     let increasing = report.windows( 2 )
-          .any( |window| {
+          .all( |window| {
             return level_values_close( window ) && window[0] < window[1];
           });
 
     let decreasing = report.windows( 2 )
-          .any( |window| {
+          .all( |window| {
             return level_values_close( window ) && window[1] < window[0];
           });
 
@@ -34,7 +34,7 @@ fn level_values_close( window: &[u32] ) -> bool {
 }
 
 fn read_input_data( ) -> Result<String,std::io::Error> {
-    let asset_path = format!("{}/assets/2024/puzzle2/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
+    let asset_path = format!("{}/assets/2024/puzzle2/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string( asset_path );
 }
 
