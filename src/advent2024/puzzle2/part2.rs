@@ -15,50 +15,55 @@ pub fn solve( ) -> Result<usize, InputDataError> {
 
 fn is_report_safe( report: Vec<u32> ) -> bool {
 
-    let increasing = report.windows( 2 )
-          .all_but_n( 1,|window| {
+    let increasing = all_but_1_removed( &report,|window: &[u32]| {
             return level_values_close( window ) && window[0] < window[1];
           });
 
-    let decreasing = report.windows( 2 )
-          .all_but_n( 1, |window| {
+    let decreasing = all_but_1_removed( &report, |window| {
             return level_values_close( window ) && window[1] < window[0];
           });
 
     return increasing || decreasing;
 }
 
-trait IteratorExt<T>: Iterator<Item = T> + Sized {
-    /// Checks if no more than n elements of the iterator do not satisfy a predicate.
-    /// The built-in all() is equivalent to all_but_n(0).
-    fn all_but_n<P>(self, n: u32, predicate: P) -> bool
-    where
-        P: FnMut(T) -> bool;
-}
+fn all_but_1_removed( list: &Vec<u32>, predicate: fn(&[u32]) -> bool ) -> bool {
 
-impl<I, T> IteratorExt<T> for I
-where
-    I: Iterator<Item = T> + Sized,
-{
-    fn all_but_n<P>(mut self, n: u32, mut predicate: P) -> bool
-    where
-        P: FnMut(T) -> bool,
-    {
-        let mut failures = 0;
-        // The implementation can use existing Iterator methods, like next()
-        loop {
-            match self.next() {
-                Some(item) => {
-                    if !predicate(item) {
-                        failures += 1;
-                    }
+    let apply_predicate = | i1, i2 | {
+        return predicate(&[*list.get(i1).unwrap(),*list.get(i2).unwrap()]);
+    };
 
-                    if failures > n {
-                        return false;
-                    }
-                }
-                None => return true, // Reached the end, all items passed
+    let mut failed = false;
+    let mut i = 0;
+    while i < list.len()-1 {
+        let predicate_value = predicate(&list[i..=i+1]);
+
+        // if the predicate fails and we haven't already failed once,
+        // try skipping either the v0 or v1 values
+        if !failed && !predicate_value && i < list.len()-2 {
+            let p_skip_0 = apply_predicate(i+1, i+2);
+            let p_skip_1 = apply_predicate(i,i+2);
+            // if both comparisons still fail after skipping, fail immediately
+            // as more than one item would need to be removed
+            if !p_skip_0 && !p_skip_1 {
+                return false;
             }
+            // if predicate passed after skipping v0, make sure that doesn't
+            // cause comparison between v1 and v-1 to fail
+            else if p_skip_0 && i != 0 && !apply_predicate(i-1,i+1) {
+                return false;
+            }
+            // if predicate passed after skipping v1, increment i an extra time
+            // to skip over v1, as we are removing it
+            else if p_skip_1 {
+                i += 1;
+            }
+            // in either case, record we have no more failures
+            // all remaining pairs must  pass the predicate
+            failed = true;
         }
+
+        i += 1;
     }
+
+    return true;
 }
