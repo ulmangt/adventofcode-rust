@@ -1,4 +1,4 @@
-use crate::advent2024::puzzle2::part1::{read_input_data,parse_input_data,level_values_close};
+use crate::advent2024::puzzle2::part1::{self, level_values_close, parse_input_data, read_input_data};
 use crate::advent2024::puzzle1::part1::InputDataError;
 
 
@@ -8,9 +8,44 @@ pub fn solve( ) -> Result<usize, InputDataError> {
     let reports = parse_input_data( read_input_data()? )?;
 
     return Ok( reports.into_iter( )
-                       .map( is_report_safe )
+                       .map( compare_reports_safe )
                        .filter( |v| *v )
                        .count( ) );
+}
+
+fn compare_reports_safe(  report: Vec<u32> ) -> bool {
+
+    let safe1 = is_report_safe_brute_force(report.clone());
+    let safe2 = is_report_safe(report.clone());
+
+    if safe1 != safe2 {
+        println!( "{:#?}", report );
+    }
+
+    return safe1;
+}
+
+fn create_subset_reports( report: Vec<u32> ) -> Vec<Vec<u32>> {
+
+    let mut subset_reports: Vec<Vec<u32>> = (0..report.len()).map( |remove_index| {
+        let mut copy_report = report.clone( );
+        copy_report.remove(remove_index);
+        return copy_report;
+    })
+    .collect::<Vec<Vec<u32>>>();
+
+    subset_reports.push( report );
+
+    return subset_reports;
+
+}
+
+/// An inefficient brute-force implementation created to help
+/// troubleshoot issues with the implementation of all_but_1_removed
+fn is_report_safe_brute_force( report: Vec<u32> ) -> bool {
+
+    let subset_reports = create_subset_reports(report);
+    return subset_reports.into_iter().any(part1::is_report_safe);
 }
 
 fn is_report_safe( report: Vec<u32> ) -> bool {
@@ -49,7 +84,7 @@ fn all_but_1_removed( list: &Vec<u32>, predicate: fn(&[u32]) -> bool ) -> bool {
             }
             // if predicate passed after skipping v0, make sure that doesn't
             // cause comparison between v1 and v-1 to fail
-            else if p_skip_0 && i != 0 && !apply_predicate(i-1,i+1) {
+            else if p_skip_0 && !p_skip_1 && i != 0 && !apply_predicate(i-1,i+1) {
                 return false;
             }
             // if predicate passed after skipping v1, increment i an extra time
