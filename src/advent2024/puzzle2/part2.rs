@@ -32,14 +32,14 @@ fn all_but_1_removed( list: &Vec<u32>, predicate: fn(&[u32]) -> bool ) -> bool {
         return predicate(&[*list.get(i1).unwrap(),*list.get(i2).unwrap()]);
     };
 
-    let mut failed = false;
+    let mut skip_index = None;
     let mut i = 0;
     while i < list.len()-1 {
         let predicate_value = predicate(&list[i..=i+1]);
 
         // if the predicate fails and we haven't already failed once,
         // try skipping either the v0 or v1 values
-        if !failed && !predicate_value && i < list.len()-2 {
+        if skip_index.is_none() && !predicate_value && i < list.len()-2 {
             let p_skip_0 = apply_predicate(i+1, i+2);
             let p_skip_1 = apply_predicate(i,i+2);
             // if both comparisons still fail after skipping, fail immediately
@@ -56,14 +56,28 @@ fn all_but_1_removed( list: &Vec<u32>, predicate: fn(&[u32]) -> bool ) -> bool {
             // to skip over v1, as we are removing it
             else if p_skip_1 {
                 i += 1;
+                skip_index = Some(i+1);
             }
-            // in either case, record we have no more failures
-            // all remaining pairs must  pass the predicate
-            failed = true;
+            else {
+                skip_index = Some(i);
+            }
         }
 
         i += 1;
     }
 
-    return true;
+    // handle some special cases at the end of the list
+    //
+    // if no skips have been made, no need to check the second-last and last values
+    // because even if they fail the predicate, we will only have one failure
+    //
+    // if the second-last index was skipped, no more checks are necessary
+    // because the last and third-last were already checked in the last while loop iteration
+    if skip_index.is_none() || skip_index.is_some_and( |i| i==list.len()-2 ) {
+        return true
+    }
+    // if we skipped an index besides the second-last, the second-last and last values must pass
+    else { 
+        return apply_predicate( i-1, i );
+    }
 }
