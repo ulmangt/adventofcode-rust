@@ -28,17 +28,17 @@ fn is_report_safe( report: Vec<u32> ) -> bool {
     return increasing || decreasing;
 }
 
-fn level_values_close( window: &[u32] ) -> bool {
+pub fn level_values_close( window: &[u32] ) -> bool {
     let diff = window[0].abs_diff(window[1]);
     return window.len() == 2 && 1 <= diff && diff <= 3;
 }
 
-fn read_input_data( ) -> Result<String,std::io::Error> {
-    let asset_path = format!("{}/assets/2024/puzzle2/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
+pub fn read_input_data( ) -> Result<String,std::io::Error> {
+    let asset_path = format!("{}/assets/2024/puzzle2/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string( asset_path );
 }
 
-fn parse_input_data( data:String ) -> Result<Vec<Vec<u32>>, ParseIntError> {
+pub fn parse_input_data( data:String ) -> Result<Vec<Vec<u32>>, ParseIntError> {
 
     return data.lines( )
                 .map( |line| line.split_whitespace()
