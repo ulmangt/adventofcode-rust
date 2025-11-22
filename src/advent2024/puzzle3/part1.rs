@@ -2,18 +2,44 @@ use std::fs;
 use regex::Regex;
 use crate::advent2024::puzzle1::part1::InputDataError;
 
-const REGEX_STRING: &str = r"mul\(([0-9]{1,3}),([0-9]{1,3})\)";
+const MUL_REGEX_STRING: &str = r"mul\(([0-9]{1,3}),([0-9]{1,3})\)";
+const DO_REGEX_STRING: &str = r"do\(\)";
+const DONT_REGEX_STRING: &str = r"don't\(\)";
+
 
 pub fn solve() -> Result<u32, InputDataError> {
-    let re = Regex::new(REGEX_STRING).unwrap();
+    let regex_string = format!("(?:{}|{}|{})", MUL_REGEX_STRING, DO_REGEX_STRING, DONT_REGEX_STRING);
+
+    let re = Regex::new(&regex_string).unwrap();
     let data = read_input_data()?;
 
     // collect results into a Result<Vec<_>, _>; the first Err will short-circuit here
-    let products: Vec<u32> = re.captures_iter(&data)
-        .map(|cap| parse_mul(&cap).map(|(a,b)| a * b))
-        .collect::<Result<Vec<u32>, InputDataError>>()?;
+    let (sum,_) = re.captures_iter(&data)
+        .try_fold( (0,true),
+               |(acc_sum,acc_on),capture| {
+            
+            let whole = capture.get(0).map(|m| m.as_str()).unwrap_or(""); 
 
-    let sum: u32 = products.into_iter().sum();
+            
+            if whole.starts_with("don't") {
+                Ok((acc_sum, false))
+            }
+            else if whole.starts_with("do") {
+                Ok::<(u32,bool),InputDataError>((acc_sum, true))
+            }
+            else {
+                let (v1,v2) = parse_mul(&capture )?;
+
+                if acc_on {
+                    Ok((acc_sum + v1*v2,acc_on))
+                }
+                else {
+                    Ok((acc_sum,acc_on))
+                }
+            }
+
+        })?;
+
     Ok(sum)
 }
 
