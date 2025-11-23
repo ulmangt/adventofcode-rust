@@ -6,25 +6,25 @@ pub fn solve( ) -> Result<usize,std::io::Error> {
 }
 
 #[derive(Debug)]
-struct Matrix<D> {
+pub struct Matrix<D> {
     data: Vec<Vec<D>>
 }
 
 impl <D> Matrix<D> {
-    fn get( &self, row: i32, col: i32 ) -> Option<&D> {
+    pub fn get( &self, row: isize, col: isize ) -> Option<&D> {
         if row < 0 || col < 0 { return Option::None }
         return self.data.get(row as usize).and_then(|row_vec| row_vec.get(col as usize));
     }
 
-    fn rows( &self ) -> usize {
+    pub fn rows( &self ) -> usize {
         return self.data.len( );
     }
 
-    fn cols( &self ) -> usize {
+    pub fn cols( &self ) -> usize {
         return self.data.get(0).map_or(0, Vec::len);
     }
 
-    fn iter(&self) -> impl Iterator<Item = (usize, usize)> {
+    pub fn iter(&self) -> impl Iterator<Item = (usize, usize)> {
         let rows = self.rows();
         let cols = self.cols();
         (0..rows).flat_map(move |r| (0..cols).map(move |c| (r, c)))
@@ -73,15 +73,15 @@ fn get_string(
     (0..length)
         .filter_map(|index| {
             matrix.get(
-                start_row as i32 + index as i32 * d_row as i32,
-                start_col as i32 + index as i32 * d_col as i32
+                start_row as isize + index as isize * d_row as isize,
+                start_col as isize + index as isize * d_col as isize
             )
             .copied()
     })
     .collect::<String>()
 }
 
-fn parse_input_data( string_data: String ) -> Matrix<char> {
+pub fn parse_input_data( string_data: String ) -> Matrix<char> {
     let lines: Vec<&str> = string_data.lines().collect();
 
     let mut data: Vec<Vec<char>> = Vec::new();
@@ -99,7 +99,7 @@ fn parse_input_data( string_data: String ) -> Matrix<char> {
     }
 }
 
-fn read_input_data( ) -> Result<String,std::io::Error> {
+pub fn read_input_data( ) -> Result<String,std::io::Error> {
     let file_path: String = format!("{}/assets/2024/puzzle4/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string( file_path );
 }
