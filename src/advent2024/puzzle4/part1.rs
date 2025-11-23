@@ -2,15 +2,6 @@ use std::fs;
 
 pub fn solve( ) -> Result<usize,std::io::Error> {
     let matrix = parse_input_data( read_input_data( )? );
-
-    println!("{:?}", matrix);
-
-    println!("{:?}", matrix.get(1, 2).unwrap_or(&'X'));
-
-    println!("{:?}", all_pairs_except( -1..=1, -1..=1, vec![(0,0)] ) );
-
-    //let v: Vec<(i8,i8)> = all_pairs( -1..=1, -1..=1 ).into_iter().filter(|pair| *pair!=(0,0)).collect();
-
     return Ok(search_pattern(&matrix,"XMAS",&all_pairs_except( -1..=1, -1..=1, vec![(0,0)] ) ) );
 }
 
@@ -20,8 +11,9 @@ struct Matrix<D> {
 }
 
 impl <D> Matrix<D> {
-    fn get( &self, row: usize, col: usize ) -> Option<&D> {
-        return self.data.get(row).and_then(|row_vec| row_vec.get(col));
+    fn get( &self, row: i32, col: i32 ) -> Option<&D> {
+        if row < 0 || col < 0 { return Option::None }
+        return self.data.get(row as usize).and_then(|row_vec| row_vec.get(col as usize));
     }
 
     fn rows( &self ) -> usize {
@@ -81,8 +73,8 @@ fn get_string(
     (0..length)
         .filter_map(|index| {
             matrix.get(
-                start_row + index * (d_row as usize),
-                start_col + index * (d_col as usize)
+                start_row as i32 + index as i32 * d_row as i32,
+                start_col as i32 + index as i32 * d_col as i32
             )
             .copied()
     })
@@ -108,7 +100,7 @@ fn parse_input_data( string_data: String ) -> Matrix<char> {
 }
 
 fn read_input_data( ) -> Result<String,std::io::Error> {
-    let file_path: String = format!("{}/assets/2024/puzzle4/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
+    let file_path: String = format!("{}/assets/2024/puzzle4/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string( file_path );
 }
 
