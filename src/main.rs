@@ -8,4 +8,5 @@ fn main() {
     println!("Puzzle3 Part2 Solution: {}", crate::advent2024::puzzle3::part1::solve().unwrap( ) );
     println!("Puzzle4 Part1 Solution: {}", crate::advent2024::puzzle4::part1::solve().unwrap( ) );
     println!("Puzzle4 Part1 Solution: {}", crate::advent2024::puzzle4::part2::solve().unwrap( ) );
+    println!("Puzzle5 Part1 Solution: {}", crate::advent2024::puzzle5::part1::solve().unwrap( ) );
 }
