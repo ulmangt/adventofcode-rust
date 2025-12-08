@@ -11,6 +11,20 @@ pub struct Matrix<D> {
 }
 
 impl <D> Matrix<D> {
+    pub fn new( data: Vec<Vec<D>> ) -> Self {
+        Matrix {
+            data
+        }
+    }
+
+    pub fn get_tuple_unsigned( &self, coords: &(usize,usize) ) -> Option<&D> {
+        return self.get(coords.0 as isize,coords.1 as isize);
+    }
+
+    pub fn get_tuple( &self, coords: &(isize,isize) ) -> Option<&D> {
+        return self.get(coords.0,coords.1);
+    }
+
     pub fn get( &self, row: isize, col: isize ) -> Option<&D> {
         if row < 0 || col < 0 { return Option::None }
         return self.data.get(row as usize).and_then(|row_vec| row_vec.get(col as usize));
