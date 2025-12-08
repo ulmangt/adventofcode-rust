@@ -18,7 +18,7 @@ pub fn read_input_data( ) -> Result<String,std::io::Error> {
     return fs::read_to_string( file_path );
 }
 
-fn parse_input_data( string: String ) -> Result<Vec<(u64,u64)>, InputDataError> {
+pub fn parse_input_data( string: String ) -> Result<Vec<(u64,u64)>, InputDataError> {
     return string
           .split(',')
           .map( parse_line )
