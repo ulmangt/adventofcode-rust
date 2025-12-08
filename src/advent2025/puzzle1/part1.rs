@@ -3,12 +3,12 @@ use std::{fs};
 // Solves https://adventofcode.com/2025/day/1
 pub fn solve( ) -> Result<i32,InputDataError> {
     let commands = parse_input_data( read_input_data()? )?;
+
     Ok( commands
             .iter()
-            .fold( (50,0), | acc, element | {
-                let new_value = add_wrapping( acc.0, *element, 100 );
-                (new_value, if new_value == 0 { acc.1 + 1 } else { acc.1 })
-            }).1)
+            .fold( ValueAndZeroCount { value: 50, zero_count: 0 }, | acc, element | {
+                add_wrapping( acc, *element, 100 )
+            }).zero_count)
 }
 
 pub fn read_input_data( ) -> Result<String,std::io::Error> {
@@ -46,13 +46,39 @@ fn parse_line(string: &str) -> Result<i32, InputDataError> {
     Ok(distance*direction)
 }
 
-fn add_wrapping( current: i32, increment: i32, max: i32 ) -> i32 {
+fn num_wraps( mut increment: i32, max: i32 ) -> i32 {
+    increment = i32::abs(increment);
+    if increment < max { 0 } else { increment / max }
+}
+
+fn add_wrapping( current: ValueAndZeroCount, increment: i32, max: i32 ) -> ValueAndZeroCount {
+
+    let full_wrap_count = num_wraps( increment, max );
+
     // every multiple of max increments wraps around
     let increment = increment % max;
-    let mut new = current + increment;
-    if new >= max { new -= max }
-    if new < 0 { new += max }
-    new
+    let mut new = current.value + increment;
+    
+    let mut crossed_zero = 0;
+    
+    if current.value != 0 && new == 0 {
+        crossed_zero = 1;
+    }
+    else if new >= max {
+        new -= max;
+        if current.value != 0 { crossed_zero = 1; }
+    }
+    else if new < 0 {
+        new += max;
+         if current.value != 0 { crossed_zero = 1; }
+    }
+
+    ValueAndZeroCount { value: new, zero_count: current.zero_count + full_wrap_count + crossed_zero }
+}
+
+struct ValueAndZeroCount {
+    value: i32,
+    zero_count: i32
 }
 
 #[derive(Debug)]
