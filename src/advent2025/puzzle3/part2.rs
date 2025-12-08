@@ -16,35 +16,29 @@ pub fn solve( ) -> Result<u64,InputDataError> {
 
 fn get_max_joltage( bank:&[u64], max_enabled: u32 ) -> u64 {
 
-    let mut enabled_indexes = vec![false;bank.len()];
+    let mut stack: Vec<u64> = Vec::new();
+    let length = bank.len();
+    let mut removes_remaining = length as u32 - max_enabled;
 
-    let mut enabled_count = 0;
-    for digit in (0..=9).rev() {
-        for index in 0..bank.len() {
-            if !enabled_indexes[index] && bank[index] == digit {
-                enabled_indexes[index] = true;
-                enabled_count = enabled_count+1;
-            }
-
-            if enabled_count == max_enabled {
-                return get_joltage(&bank, &enabled_indexes, max_enabled);
-            }
+    for index in 0..length {
+        while !stack.is_empty() && stack.last().unwrap() < &bank[index] && removes_remaining > 0 {
+            stack.pop();
+            removes_remaining = removes_remaining-1;
         }
+        stack.push(bank[index]); 
     }
 
-    return get_joltage(&bank, &enabled_indexes, max_enabled);
+    stack.truncate(max_enabled as usize);
+
+    return get_joltage( &stack );
 }
 
-fn get_joltage( bank:&[u64], enabled_indexes: &[bool], max_enabled: u32 ) -> u64 {
+fn get_joltage( bank:&[u64] ) -> u64 {
 
     let mut joltage: u64 = 0;
-    let mut remaining_enabled: u32 = max_enabled;
 
     for index in 0..bank.len() {
-        if enabled_indexes[index] {
-            joltage = joltage + bank[index] * (10 as u64).pow(remaining_enabled-1);
-            remaining_enabled = remaining_enabled-1;
-        }
+        joltage = joltage + bank[index] * (10 as u64).pow(bank.len() as u32-index as u32-1);
     }
 
     joltage

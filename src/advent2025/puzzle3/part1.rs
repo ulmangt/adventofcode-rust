@@ -9,7 +9,7 @@ pub fn solve( ) -> Result<u64,InputDataError> {
 }
 
 pub fn read_input_data() -> Result<String,std::io::Error> {
-    let file_path = format!("{}/assets/2025/puzzle3/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
+    let file_path = format!("{}/assets/2025/puzzle3/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string( file_path );
 }
 
