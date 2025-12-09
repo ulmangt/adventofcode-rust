@@ -22,7 +22,7 @@ pub fn solve() -> Result<usize,InputDataError> {
         .count())
 }
 
-fn step( manifold: &mut Matrix<char>, row: usize ) {
+pub fn step( manifold: &mut Matrix<char>, row: usize ) {
 
     for col in 0..manifold.cols() {
         let value = manifold.get_unsigned(row, col);
