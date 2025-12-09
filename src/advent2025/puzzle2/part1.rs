@@ -25,7 +25,7 @@ pub fn parse_input_data( string: String ) -> Result<Vec<(u64,u64)>, InputDataErr
           .collect();
 }
 
-fn parse_line( string: &str ) -> Result<(u64, u64), InputDataError> {
+pub fn parse_line( string: &str ) -> Result<(u64, u64), InputDataError> {
     let values: Vec<u64> = string
         .split('-')
         .map(|token| token.parse::<u64>().map_err(InputDataError::from))

@@ -30,6 +30,25 @@ impl <D> Matrix<D> {
         return self.data.get(row as usize).and_then(|row_vec| row_vec.get(col as usize));
     }
 
+    pub fn set_tuple_unsigned(&mut self,  coords: &(usize,usize), val: D) {
+        self.set( coords.0 as isize, coords.1 as isize, val );
+    }
+
+    pub fn set_tuple(&mut self,  coords: &(isize,isize), val: D) {
+        self.set( coords.0, coords.1, val );
+    }
+
+    pub fn set(&mut self, row: isize, col: isize, val: D) {
+        if row < 0 || col < 0 {
+            return;
+        }
+
+        if let Some(row_vec) = self.data.get_mut(row as usize) {
+            if let Some(cell) = row_vec.get_mut(col as usize) {
+                *cell = val;
+            }
+        }
+    }
     pub fn rows( &self ) -> usize {
         return self.data.len( );
     }

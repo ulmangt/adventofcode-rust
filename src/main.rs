@@ -16,6 +16,9 @@ fn main() {
     println!("2025 Puzzle2 Part2 Solution: {}", crate::advent2025::puzzle2::part2::solve().unwrap( ) );
     println!("2025 Puzzle3 Part1 Solution: {}", crate::advent2025::puzzle3::part1::solve().unwrap( ) );
     println!("2025 Puzzle3 Part2 Solution: {}", crate::advent2025::puzzle3::part2::solve().unwrap( ) );
-    */
     println!("2025 Puzzle4 Part1 Solution: {}", crate::advent2025::puzzle4::part1::solve().unwrap( ) );
+    println!("2025 Puzzle4 Part2 Solution: {}", crate::advent2025::puzzle4::part2::solve().unwrap( ) );
+    println!("2025 Puzzle5 Part1 Solution: {}", crate::advent2025::puzzle5::part1::solve().unwrap( ) );
+    */
+     println!("2025 Puzzle5 Part2 Solution: {}", crate::advent2025::puzzle5::part2::solve().unwrap( ) );
 }
