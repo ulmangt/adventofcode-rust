@@ -10,7 +10,7 @@ pub struct Matrix<D> {
     data: Vec<Vec<D>>
 }
 
-impl <D> Matrix<D> {
+impl <D: ToString> Matrix<D> {
     pub fn new( data: Vec<Vec<D>> ) -> Self {
         Matrix {
             data
@@ -25,6 +25,10 @@ impl <D> Matrix<D> {
         return self.get(coords.0,coords.1);
     }
 
+    pub fn get_unsigned( &self, row: usize, col: usize ) -> Option<&D> {
+        return self.get( row as isize, col as isize );
+    }
+
     pub fn get( &self, row: isize, col: isize ) -> Option<&D> {
         if row < 0 || col < 0 { return Option::None }
         return self.data.get(row as usize).and_then(|row_vec| row_vec.get(col as usize));
@@ -36,6 +40,10 @@ impl <D> Matrix<D> {
 
     pub fn set_tuple(&mut self,  coords: &(isize,isize), val: D) {
         self.set( coords.0, coords.1, val );
+    }
+
+    pub fn set_unsigned(&mut self, row: usize, col: usize, val: D) {
+        self.set(row as isize, col as isize, val);
     }
 
     pub fn set(&mut self, row: isize, col: isize, val: D) {
@@ -61,6 +69,19 @@ impl <D> Matrix<D> {
         let rows = self.rows();
         let cols = self.cols();
         (0..rows).flat_map(move |r| (0..cols).map(move |c| (r, c)))
+    }
+
+    pub fn to_string(&self) -> String {
+        let mut accum: String = String::new();
+
+        for row in 0..self.rows() {
+            for col in 0..self.cols() {
+                accum.push_str( &self.get_unsigned(row,col).unwrap().to_string());
+            }
+            accum.push_str("\n");
+        }
+
+        return accum;
     }
 }
 
