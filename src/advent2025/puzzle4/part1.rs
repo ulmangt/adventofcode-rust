@@ -24,7 +24,7 @@ pub fn count_adjacent_rolls( matrix: &Matrix<char>, row: isize, col: isize ) -> 
         .count()
 }
 
-fn all_pairs_except<I>( iter1: I, iter2: I, except: Vec<(i32,i32)>) -> Vec<(i32,i32)>
+pub fn all_pairs_except<I>( iter1: I, iter2: I, except: Vec<(i32,i32)>) -> Vec<(i32,i32)>
 where
     I: Iterator<Item = i32> + Clone,
 {
