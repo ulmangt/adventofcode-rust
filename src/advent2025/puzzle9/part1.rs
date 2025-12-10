@@ -65,7 +65,7 @@ pub fn parse_input_data(string: String) -> Result<Vec<(u32,u32)>, ParseIntError>
 }
 
 pub fn read_input_data( ) -> Result<String,std::io::Error> {
-    let file_path: String = format!("{}/assets/2025/puzzle9/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
+    let file_path: String = format!("{}/assets/2025/puzzle9/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string( file_path );
 }
 
