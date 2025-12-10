@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, collections::BTreeSet, fs, num::ParseIntError};
+use std::{cmp::Ordering, collections::{BTreeSet, HashMap}, fs, num::ParseIntError};
 
 use itertools::Itertools;
 
@@ -7,10 +7,45 @@ pub fn solve( ) -> Result<u32,InputDataError> {
     let junction_boxes: Vec<JunctionBox> = parse_input_data(read_input_data()?)?;
     let junction_box_pairs: BTreeSet<JunctionBoxPair> = calculate_distances(junction_boxes);
 
-    junction_box_pairs.iter()
-        .for_each(|value|println!("{:?} {:?} {:?}",value.distance,value.first,value.second));
+    let mut next_circuit_index: u32 = 0;
+    let mut circuit_map: HashMap<JunctionBox,u32> = HashMap::new();
 
-    Ok(0)
+    for junction_box_pair in junction_box_pairs.iter().take(1000) {
+
+        let circuit1 = circuit_map.get( &junction_box_pair.first ).cloned();
+        let circuit2 = circuit_map.get( &junction_box_pair.second ).cloned();
+
+        println!("{:?} {:?} {:?}",junction_box_pair,circuit1,circuit2);
+
+        // if both are part of circuits, assign them all to circuit2
+        if circuit1.is_some() && circuit2.is_some() {
+            let circuit1 = circuit1.unwrap();
+            let circuit2 = circuit2.unwrap();
+            circuit_map.iter_mut().for_each(|entry| if *entry.1 == circuit1 { *entry.1 = circuit2});
+        }
+        // only one is part of a circuit, assign the other to that circuit
+        else if let Some(circuit) = circuit1 {
+            circuit_map.insert(junction_box_pair.second.clone(), circuit);
+        }
+        else if let Some(circuit) = circuit2 {
+            circuit_map.insert(junction_box_pair.first.clone(), circuit);
+        }
+        // neither are part of circuits, assign both to a new circuit
+        else {
+            circuit_map.insert(junction_box_pair.first.clone(), next_circuit_index);
+            circuit_map.insert(junction_box_pair.second.clone(), next_circuit_index);
+            next_circuit_index = next_circuit_index+1;
+        }
+    }
+
+    let mut circuit_size_map: HashMap<u32,u32> = HashMap::new(); // map circuit index to number of 
+    for entry in circuit_map.iter() {
+        *circuit_size_map.entry(*entry.1).or_insert(0) += 1;
+    }
+
+    println!("{:?}",circuit_size_map);
+
+    Ok(circuit_size_map.values().k_largest(3).product())
 }
 
 #[derive(Debug)]
@@ -53,8 +88,7 @@ impl Ord for JunctionBoxPair {
     }
 }
 
-#[derive(Clone)]
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct JunctionBox {
     x: u32,
     y: u32,
@@ -106,7 +140,7 @@ pub fn parse_input_data(string: String) -> Result<Vec<JunctionBox>, ParseIntErro
 }
 
 pub fn read_input_data( ) -> Result<String,std::io::Error> {
-    let file_path: String = format!("{}/assets/2025/puzzle8/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
+    let file_path: String = format!("{}/assets/2025/puzzle8/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string( file_path );
 }
 
