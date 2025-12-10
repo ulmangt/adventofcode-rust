@@ -50,9 +50,9 @@ pub fn solve( ) -> Result<u32,InputDataError> {
 
 #[derive(Debug)]
 pub struct JunctionBoxPair {
-    first: JunctionBox,
-    second: JunctionBox,
-    distance: f64
+    pub first: JunctionBox,
+    pub second: JunctionBox,
+    pub distance: f64
 }
 
 impl JunctionBoxPair {
@@ -90,9 +90,9 @@ impl Ord for JunctionBoxPair {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct JunctionBox {
-    x: u32,
-    y: u32,
-    z: u32
+    pub x: u32,
+    pub y: u32,
+    pub z: u32
 }
 
 impl JunctionBox {
