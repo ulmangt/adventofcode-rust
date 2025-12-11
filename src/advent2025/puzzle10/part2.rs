@@ -22,7 +22,10 @@ pub fn solve() -> Result<u32, Box<dyn Error>> {
         .map(Machine::parse)
         .collect::<Result<Vec<Machine>,InputDataError>>()?;
 
-    Ok(machines.iter().map(|machine|get_fewest_presses_joltage(machine)).map(|v|v.unwrap_or(0)).sum())
+    Ok(machines.iter().enumerate().map(|(index,machine)|{
+        println!("line {}",index+1);
+        get_fewest_presses_joltage(machine)
+    }).map(|v|v.unwrap()).sum())
 }
 
 
@@ -35,7 +38,7 @@ fn get_fewest_presses_joltage(machine: &Machine) -> Result<u32, Box<dyn Error>> 
 
     // add a variable for the number of times each button_wiring is pressed
     for _ in machine.button_wiring.iter() {
-        variables.push( vars.add(variable().min(0.0).integer() ) );
+        variables.push( vars.add(variable().min(0).integer() ) );
     }
 
     // construct objective function which sums the button clicks
@@ -44,35 +47,37 @@ fn get_fewest_presses_joltage(machine: &Machine) -> Result<u32, Box<dyn Error>> 
         objective_expr = objective_expr + *var;
     }
 
+    println!("objective {:?}",objective_expr);
+
     let mut solution = vars
         .minimise(&objective_expr)
         .using(microlp::microlp);
 
     for (requirement_index, requirement) in machine.joltage_requirements.iter().enumerate() {
 
-        let mut constraint: Expression = 0.0.into();
+        let mut constraint: Expression = 0.into();
         for (index,wiring) in machine.button_wiring.iter().enumerate() {
             if wiring.contains(&(requirement_index as u32)) {
                 constraint = constraint + variables[index];
             }
         }
 
-        //println!("{:?} {}",constraint, *requirement);
+        println!("constaint {:?} = {}",constraint, *requirement);
 
         solution = solution.with(constraint.eq(*requirement));
     }
 
     let solution = solution.solve()?;
 
-    /*
+    
     for var in variables.iter() {
-        println!("{}",solution.eval(var))
+        println!("variable: {}",solution.eval(var))
     }
-    */
+    
 
     let result = solution.eval(&objective_expr) as u32;
 
-    println!("{}",result);
+    println!("result: {}",result);
 
     Ok(result)
 }
