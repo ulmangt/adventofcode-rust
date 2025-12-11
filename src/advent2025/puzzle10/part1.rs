@@ -97,7 +97,7 @@ fn parse_indicator_lights( string: &str ) -> Vec<bool> {
 }
 
 pub fn read_input_data( ) -> Result<String,std::io::Error> {
-    let asset_path: String = format!("{}/assets/2025/puzzle10/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
+    let asset_path: String = format!("{}/assets/2025/puzzle10/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string(asset_path);
 }
 
