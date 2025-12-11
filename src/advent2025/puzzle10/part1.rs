@@ -1,24 +1,22 @@
 use std::{fs, num::ParseIntError};
 
-use regex::{Match, Regex};
+use regex::{Regex};
 
 
 const REGEX_STRING: &str = r"\[([.#]*)\]((?:\s\(\d+(?:,\d+)*\))*)\s\{(\d+(?:,\d+)*)\}";
 
-pub fn solve() -> Result<u64,InputDataError> {
-    let re = Regex::new(&REGEX_STRING).unwrap();
-    let data = read_input_data()?;
+pub fn solve() -> Result<u32,InputDataError> {
 
-    let machines: Vec<Machine> = data
+    let machines: Vec<Machine> = read_input_data()?
         .lines()
         .map(Machine::parse)
         .collect::<Result<Vec<Machine>,InputDataError>>()?;
 
-    Ok(0)
+    Ok(machines.iter().map(Machine::get_fewest_presses).sum())
 }
 
 struct Machine {
-    indicator_lights: Vec<bool>,
+    indicator_lights_goal: Vec<bool>,
     button_wiring: Vec<Vec<u32>>,
     joltage_requirements: Vec<u32>
 }
@@ -35,8 +33,38 @@ impl Machine {
         let joltage_requirements = parse_joltage_requirements( captures.get(3).ok_or(InputDataError::UnexpectedLineFormat)?.as_str() )?;
         println!("{:?}",joltage_requirements);
 
-        Ok( Machine { indicator_lights, button_wiring, joltage_requirements } )
+        Ok( Machine { indicator_lights_goal: indicator_lights, button_wiring, joltage_requirements } )
     }
+
+    fn get_fewest_presses_helper(&self,indicator_lights:Vec<bool>,presses:u32) -> u32 {
+        let mut updated_indicator_lights = Vec::new();
+
+        for buttons in self.button_wiring.iter() {
+            let indicator_lights = press_buttons( buttons, &indicator_lights );
+            if indicator_lights.eq(&self.indicator_lights_goal) {
+                return presses+1;
+            }
+            updated_indicator_lights.push(indicator_lights);
+        }
+
+        updated_indicator_lights
+            .iter()
+            .map(|indicator_lights|self.get_fewest_presses_helper(indicator_lights.clone(),presses+1))
+            .min()
+            .unwrap_or(0)
+}
+
+    fn get_fewest_presses(&self) -> u32 {
+        self.get_fewest_presses_helper( vec![false;self.indicator_lights_goal.len()], 0 )
+    }
+}
+
+fn press_buttons( buttons: &Vec<u32>,  indicator_lights: &Vec<bool> ) -> Vec<bool> {
+    let mut indicator_lights = indicator_lights.clone();
+    for button in buttons.iter() {
+        indicator_lights.get_mut(*button as usize).map(|value|*value = !*value);
+    }
+    indicator_lights
 }
 
 fn parse_joltage_requirements( string: &str ) -> Result<Vec<u32>,ParseIntError> {
