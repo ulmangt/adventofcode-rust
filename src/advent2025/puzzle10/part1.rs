@@ -1,7 +1,6 @@
-use std::{fs, num::ParseIntError};
+use std::{collections::VecDeque, fs, num::ParseIntError};
 
 use regex::{Regex};
-
 
 const REGEX_STRING: &str = r"\[([.#]*)\]((?:\s\(\d+(?:,\d+)*\))*)\s\{(\d+(?:,\d+)*)\}";
 
@@ -36,26 +35,23 @@ impl Machine {
         Ok( Machine { indicator_lights_goal: indicator_lights, button_wiring, joltage_requirements } )
     }
 
-    fn get_fewest_presses_helper(&self,indicator_lights:Vec<bool>,presses:u32) -> u32 {
-        let mut updated_indicator_lights = Vec::new();
+    fn get_fewest_presses(&self) -> Option<u32> {
+        
+        let mut queue: VecDeque<(&Vec<u32>,Vec<bool>,u32)> = VecDeque::new();
+        self.button_wiring.iter().for_each(|button|queue.push_front((&button,vec![false;self.indicator_lights_goal.len()],0)));
+        
+        while !queue.is_empty() {
 
-        for buttons in self.button_wiring.iter() {
+            let (buttons,indicator_lights,presses) = queue.pop_back().unwrap();
             let indicator_lights = press_buttons( buttons, &indicator_lights );
             if indicator_lights.eq(&self.indicator_lights_goal) {
-                return presses+1;
+                return Some(presses+1);
             }
-            updated_indicator_lights.push(indicator_lights);
+
+            self.button_wiring.iter().for_each(|button|queue.push_front((&button,indicator_lights.clone(),presses+1)));
         }
 
-        updated_indicator_lights
-            .iter()
-            .map(|indicator_lights|self.get_fewest_presses_helper(indicator_lights.clone(),presses+1))
-            .min()
-            .unwrap_or(0)
-}
-
-    fn get_fewest_presses(&self) -> u32 {
-        self.get_fewest_presses_helper( vec![false;self.indicator_lights_goal.len()], 0 )
+        return None;
     }
 }
 
