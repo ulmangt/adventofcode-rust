@@ -1,6 +1,10 @@
 use std::collections::{HashMap, VecDeque};
 
-use crate::advent2025::puzzle10::part1::{InputDataError, Machine, read_input_data};
+use good_lp::{Solution, SolverModel, constraint, solvers::microlp, variables};
+
+use crate::advent2025::puzzle10::part1::{Machine};
+
+use std::error::Error;
 
 // can calculate the maximum number of times each button can be pressed (the min of the joltage requirements for each slot it affects)
 // generally want to press buttons that affect the maximum number of slots (until this backs us into a corner)
@@ -10,6 +14,31 @@ use crate::advent2025::puzzle10::part1::{InputDataError, Machine, read_input_dat
 //
 // click the button which reduces the largest number of the highest slots? does that have the possibility of backing itself into corner?
 
+pub fn solve() -> Result<(), Box<dyn Error>> {
+    variables! {
+        vars:
+            x >= 0;
+            y >= 0;
+    }
+
+    let objective = 5 * x + 3 * y;
+
+    let solution = vars
+        .maximise(&objective)
+        .using(microlp::microlp)
+        .with(constraint!(x + 2*y <= 14))
+        .with(constraint!(3*x - y >= 0))
+        .with(constraint!(x - y <= 2))
+        .solve()
+        .unwrap();
+
+    println!("x = {}", solution.value(x));
+    println!("y = {}", solution.value(y));
+    println!("objective = {}", solution.eval(&objective));
+    Ok(())
+}
+
+/*
 pub fn solve() -> Result<u32,InputDataError> {
 
     let machines: Vec<Machine> = read_input_data()?
@@ -29,6 +58,7 @@ pub fn solve() -> Result<u32,InputDataError> {
             .sum()
     )
 }
+*/
 
 impl Machine {
     fn get_fewest_presses_joltage(&self) -> Option<u32> {
