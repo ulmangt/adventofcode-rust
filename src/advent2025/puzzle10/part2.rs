@@ -79,5 +79,10 @@ fn get_fewest_presses_joltage(machine: &Machine) -> Result<u32, Box<dyn Error>> 
 
     println!("result: {}",result);
 
-    Ok(result)
+    let rounded_result = variables
+        .iter()
+        .map(|v| solution.eval(v).round().max(0.0))
+        .sum::<f64>() as u32;
+
+    Ok(rounded_result)
 }
