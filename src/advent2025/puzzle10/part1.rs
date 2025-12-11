@@ -97,7 +97,7 @@ fn parse_indicator_lights( string: &str ) -> Vec<bool> {
 }
 
 pub fn read_input_data( ) -> Result<String,std::io::Error> {
-    let asset_path: String = format!("{}/assets/2025/puzzle10/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
+    let asset_path: String = format!("{}/assets/2025/puzzle10/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string(asset_path);
 }
 
@@ -117,5 +117,17 @@ impl From<std::io::Error> for InputDataError {
 impl From<std::num::ParseIntError> for InputDataError {
     fn from(err: std::num::ParseIntError) -> InputDataError {
         InputDataError::ParseIntError(err)
+    }
+}
+
+impl std::error::Error for InputDataError { }
+
+impl std::fmt::Display for InputDataError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            InputDataError::Io(err) => write!(f, "IO error: {}", err),
+            InputDataError::ParseIntError(err) => write!(f, "ParseInt error: {}", err),
+            InputDataError::UnexpectedLineFormat => write!(f, "Unexpected line format"),
+        }
     }
 }
