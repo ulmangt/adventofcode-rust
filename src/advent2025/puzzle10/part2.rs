@@ -70,5 +70,9 @@ fn get_fewest_presses_joltage(machine: &Machine) -> Result<u32, Box<dyn Error>> 
     }
     */
 
-    Ok(solution.eval(&objective_expr) as u32)
+    let result = solution.eval(&objective_expr) as u32;
+
+    println!("{}",result);
+
+    Ok(result)
 }
