@@ -14,14 +14,14 @@ pub fn solve() -> Result<u32,InputDataError> {
     Ok(machines.iter().map(Machine::get_fewest_presses).map(|v|v.unwrap_or(0)).sum())
 }
 
-struct Machine {
-    indicator_lights_goal: Vec<bool>,
-    button_wiring: Vec<Vec<u32>>,
-    joltage_requirements: Vec<u32>
+pub struct Machine {
+    pub indicator_lights_goal: Vec<bool>,
+    pub button_wiring: Vec<Vec<u32>>,
+    pub joltage_requirements: Vec<u32>
 }
 
 impl Machine {
-    fn parse(line: &str) -> Result<Self,InputDataError> {
+    pub fn parse(line: &str) -> Result<Self,InputDataError> {
         let re = Regex::new(&REGEX_STRING).unwrap();
         //println!("{}",line);
         let captures = re.captures(line).ok_or(InputDataError::UnexpectedLineFormat)?;
@@ -96,8 +96,8 @@ fn parse_indicator_lights( string: &str ) -> Vec<bool> {
           .collect()
 }
 
-fn read_input_data( ) -> Result<String,std::io::Error> {
-    let asset_path: String = format!("{}/assets/2025/puzzle10/part1/input.txt", env!("CARGO_MANIFEST_DIR"));
+pub fn read_input_data( ) -> Result<String,std::io::Error> {
+    let asset_path: String = format!("{}/assets/2025/puzzle10/part1/test.txt", env!("CARGO_MANIFEST_DIR"));
     return fs::read_to_string(asset_path);
 }
 
