@@ -1,5 +1,3 @@
-use std::{collections::{HashMap, VecDeque}};
-
 use good_lp::{Expression, ProblemVariables, Solution, SolverModel, solvers::microlp, variable};
 
 use crate::advent2025::puzzle10::part1::{InputDataError, Machine, read_input_data};
