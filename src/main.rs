@@ -29,7 +29,7 @@ fn main() {
     println!("2025 Puzzle9 Part1 Solution: {}", crate::advent2025::puzzle9::part1::solve().unwrap( ) );
     println!("2025 Puzzle9 Part2 Solution: {}", crate::advent2025::puzzle9::part2::solve().unwrap( ) );
     println!("2025 Puzzle10 Part1 Solution: {}", crate::advent2025::puzzle10::part1::solve().unwrap( ) );
-    */
     println!("2025 Puzzle10 Part2 Solution: {}", crate::advent2025::puzzle10::part2::solve().unwrap( ) );
-
+    */
+    println!("2025 Puzzle11 Part1 Solution: {}", crate::advent2025::puzzle11::part1::solve().unwrap( ) );
 }
