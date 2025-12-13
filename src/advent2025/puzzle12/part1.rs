@@ -5,7 +5,9 @@ use regex::Regex;
 use crate::advent2024::puzzle4::part1::Matrix;
 
 pub fn solve() -> Result<InputData, InputDataError> {
-    Ok(parse_input_data(read_input_data()?)?)
+    let data = parse_input_data(read_input_data()?)?;
+
+    Ok(data)
 }
 
 const PRESENT_ID_REGEX: &str = r"^(\d+):";
@@ -25,7 +27,7 @@ pub struct Region {
 }
 
 pub fn parse_input_data(data: String) -> Result<InputData, ParseIntError> {
-    let mut lines: Vec<&str> = data.lines().collect();
+    let lines: Vec<&str> = data.lines().collect();
 
     let present_regex: Regex = Regex::new(PRESENT_ID_REGEX).unwrap();
     let region_regex: Regex = Regex::new(REGION_REGEX).unwrap();
