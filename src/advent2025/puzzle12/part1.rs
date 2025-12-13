@@ -2,13 +2,15 @@ use std::{collections::HashMap, fs, num::ParseIntError};
 
 use regex::Regex;
 
-use crate::advent2024::puzzle4::part1::Matrix;
-
 pub fn solve() -> Result<InputData, InputDataError> {
     let data = parse_input_data(read_input_data()?)?;
 
     Ok(data)
 }
+
+pub fn place_piece(input: &InputData, region: &mut Matrix<bool>, remaining_pieces: Vec<u32>) {}
+
+pub fn get_rotations(piece: Matrix<bool>) {}
 
 const PRESENT_ID_REGEX: &str = r"^(\d+):";
 const REGION_REGEX: &str = r"^(\d+)x(\d+):((?:\s\d+)+)";
@@ -78,7 +80,7 @@ pub fn parse_input_data(data: String) -> Result<InputData, ParseIntError> {
 }
 
 fn parse_presents(lines: &Vec<&str>, lines_index: usize) -> Matrix<bool> {
-    let mut data: Matrix<bool> = new_matrix(false, 3, 3);
+    let mut data: Matrix<bool> = Matrix::new(false, 3, 3);
 
     let line1 = parse_present_line(lines[lines_index]);
     let line2 = parse_present_line(lines[lines_index + 1]);
@@ -95,20 +97,6 @@ fn parse_presents(lines: &Vec<&str>, lines_index: usize) -> Matrix<bool> {
 
 fn parse_present_line(lines: &str) -> Vec<bool> {
     lines.chars().map(|v| v == '#').collect::<Vec<bool>>()
-}
-
-fn new_matrix(default_value: bool, rows: usize, cols: usize) -> Matrix<bool> {
-    let mut data = Vec::new();
-
-    for _ in 0..rows {
-        let mut col_data = Vec::new();
-        for _ in 0..cols {
-            col_data.push(default_value);
-        }
-        data.push(col_data);
-    }
-
-    Matrix::new(data)
 }
 
 pub fn read_input_data() -> Result<String, std::io::Error> {
@@ -134,5 +122,45 @@ impl From<std::io::Error> for InputDataError {
 impl From<std::num::ParseIntError> for InputDataError {
     fn from(err: std::num::ParseIntError) -> InputDataError {
         InputDataError::ParseIntError(err)
+    }
+}
+
+#[derive(Debug)]
+pub struct Matrix<D> {
+    pub data: Vec<D>,
+    pub rows: usize,
+    pub cols: usize,
+}
+
+impl<D: ToString + Copy> Matrix<D> {
+    pub fn new(default: D, rows: usize, cols: usize) -> Self {
+        let mut data = Vec::new();
+        data.resize(rows * cols, default);
+        Matrix { data, rows, cols }
+    }
+
+    pub fn set(&mut self, row: usize, col: usize, val: D) {
+        self.data[row * self.cols + col] = val;
+    }
+
+    pub fn get(&self, row: usize, col: usize) -> D {
+        self.data[row * self.cols + col]
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (usize, usize)> + '_ {
+        (0..self.rows).flat_map(|r| (0..self.cols).map(move |c| (r, c)))
+    }
+
+    pub fn to_string(&self) -> String {
+        let mut accum: String = String::new();
+
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                accum.push_str(&self.get(row, col).to_string());
+            }
+            accum.push_str("\n");
+        }
+
+        return accum;
     }
 }
