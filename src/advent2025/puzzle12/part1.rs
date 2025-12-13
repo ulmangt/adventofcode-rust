@@ -1,16 +1,54 @@
-use std::{collections::HashMap, fs, num::ParseIntError};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    num::ParseIntError,
+    str::RSplitTerminator,
+};
 
 use regex::Regex;
 
 pub fn solve() -> Result<InputData, InputDataError> {
     let data = parse_input_data(read_input_data()?)?;
 
+    println!("{}", print_matrix(data.presents.get(&5).unwrap(), '.', '#'));
+
+    println!("Rotations:");
+
+    get_rotations(data.presents.get(&5).unwrap())
+        .iter()
+        .map(|m| print_matrix(m, '.', '#'))
+        .for_each(|v| println!("{}", v));
+
     Ok(data)
 }
 
 pub fn place_piece(input: &InputData, region: &mut Matrix<bool>, remaining_pieces: Vec<u32>) {}
 
-pub fn get_rotations(piece: Matrix<bool>) {}
+pub fn get_rotations(piece: &Matrix<bool>) -> HashSet<Matrix<bool>> {
+    let mut rotated_pieces = HashSet::new();
+    let mut piece: Matrix<bool> = piece.clone();
+    rotated_pieces.insert(piece.clone());
+
+    for _ in 0..3 {
+        piece = rotate_clockwise(&piece);
+        rotated_pieces.insert(piece.clone());
+    }
+
+    rotated_pieces
+}
+
+pub fn rotate_clockwise(piece: &Matrix<bool>) -> Matrix<bool> {
+    let mut rotated_piece = Matrix::new(false, piece.rows, piece.cols);
+
+    for row in 0..piece.rows {
+        for col in 0..piece.cols {
+            let value = piece.get(row, col);
+            rotated_piece.set(col, piece.rows - row - 1, value);
+        }
+    }
+
+    rotated_piece
+}
 
 const PRESENT_ID_REGEX: &str = r"^(\d+):";
 const REGION_REGEX: &str = r"^(\d+)x(\d+):((?:\s\d+)+)";
@@ -50,7 +88,6 @@ pub fn parse_input_data(data: String) -> Result<InputData, ParseIntError> {
         if let Some(capture) = capture {
             if let Some(capture) = capture.get(1) {
                 let index = capture.as_str().parse::<u32>()?;
-                println!("{}", index);
                 let data: Matrix<bool> = parse_presents(&lines, lines_index);
                 presents.insert(index, data);
                 lines_index += 3;
@@ -125,7 +162,7 @@ impl From<std::num::ParseIntError> for InputDataError {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Matrix<D> {
     pub data: Vec<D>,
     pub rows: usize,
@@ -163,4 +200,19 @@ impl<D: ToString + Copy> Matrix<D> {
 
         return accum;
     }
+}
+
+fn print_matrix(matrix: &Matrix<bool>, false_char: char, true_char: char) -> String {
+    let char_data = matrix
+        .data
+        .iter()
+        .map(|v| if *v { true_char } else { false_char })
+        .collect();
+
+    Matrix {
+        data: char_data,
+        rows: matrix.rows,
+        cols: matrix.cols,
+    }
+    .to_string()
 }
