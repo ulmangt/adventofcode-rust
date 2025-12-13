@@ -2,7 +2,6 @@ use std::{
     collections::{HashMap, HashSet},
     fs,
     num::ParseIntError,
-    str::RSplitTerminator,
 };
 
 use regex::Regex;
@@ -10,7 +9,12 @@ use regex::Regex;
 pub fn solve() -> Result<InputData, InputDataError> {
     let data = parse_input_data(read_input_data()?)?;
 
-    /*
+    rank_upper_left_fits(&data, &mut Matrix::new(false, 10, 5));
+
+    Ok(data)
+}
+
+pub fn debug(data: &InputData) {
     println!("{}", print_matrix(data.presents.get(&5).unwrap(), '.', '#'));
     let mut test_region = Matrix::new(false, 10, 10);
     println!(
@@ -32,9 +36,30 @@ pub fn solve() -> Result<InputData, InputDataError> {
         .iter()
         .map(|m| print_matrix(m, '.', '#'))
         .for_each(|v| println!("{}", v));
-    */
 
-    Ok(data)
+    data.presents_and_rotations_iter()
+        .for_each(|v| println!("{}\n{}", v.0, print_matrix(v.1, '.', '#')));
+}
+
+pub fn rank_upper_left_fits(input: &InputData, region: &mut Matrix<bool>) {
+    let max_distance: usize = region.rows.max(region.cols);
+
+    for distance in 0..max_distance {
+        println!("{}", distance);
+
+        let max_row = distance.min(region.rows - 1);
+        let max_col = distance.min(region.cols - 1);
+
+        for row in 0..max_row {
+            println!("{} {}", row, max_col);
+        }
+
+        for col in 0..max_col {
+            println!("{} {}", max_row, col);
+        }
+
+        println!("{} {}", max_row, max_col);
+    }
 }
 
 pub fn place_piece(
@@ -113,7 +138,16 @@ const REGION_REGEX: &str = r"^(\d+)x(\d+):((?:\s\d+)+)";
 #[derive(Debug)]
 pub struct InputData {
     pub presents: HashMap<u32, Matrix<bool>>,
+    pub presents_and_rotations: HashMap<u32, HashSet<Matrix<bool>>>,
     pub regions: Vec<Region>,
+}
+
+impl InputData {
+    pub fn presents_and_rotations_iter(&self) -> impl Iterator<Item = (&u32, &Matrix<bool>)> + '_ {
+        self.presents_and_rotations
+            .iter()
+            .flat_map(|(key, pieces)| pieces.iter().map(|piece| (&*key, piece)))
+    }
 }
 
 #[derive(Debug)]
@@ -170,7 +204,17 @@ pub fn parse_input_data(data: String) -> Result<InputData, ParseIntError> {
         }
     }
 
-    Ok(InputData { presents, regions })
+    let mut presents_and_rotations: HashMap<u32, HashSet<Matrix<bool>>> = HashMap::new();
+
+    presents.iter().for_each(|entry| {
+        presents_and_rotations.insert(*entry.0, get_rotations(entry.1));
+    });
+
+    Ok(InputData {
+        presents,
+        presents_and_rotations,
+        regions,
+    })
 }
 
 fn parse_presents(lines: &Vec<&str>, lines_index: usize) -> Matrix<bool> {
