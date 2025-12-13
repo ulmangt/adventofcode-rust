@@ -10,7 +10,21 @@ use regex::Regex;
 pub fn solve() -> Result<InputData, InputDataError> {
     let data = parse_input_data(read_input_data()?)?;
 
+    /*
     println!("{}", print_matrix(data.presents.get(&5).unwrap(), '.', '#'));
+    let mut test_region = Matrix::new(false, 10, 10);
+    println!(
+        "fits? {}",
+        check_piece_fit(&test_region, data.presents.get(&5).unwrap(), 0, 0)
+    );
+    place_piece(&mut test_region, data.presents.get(&5).unwrap(), 0, 0);
+    println!("{}", print_matrix(&test_region, '.', '#'));
+    println!(
+        "fits? {}",
+        check_piece_fit(&test_region, data.presents.get(&5).unwrap(), 1, 2)
+    );
+    place_piece(&mut test_region, data.presents.get(&5).unwrap(), 1, 2);
+    println!("{}", print_matrix(&test_region, '.', '#'));
 
     println!("Rotations:");
 
@@ -18,11 +32,54 @@ pub fn solve() -> Result<InputData, InputDataError> {
         .iter()
         .map(|m| print_matrix(m, '.', '#'))
         .for_each(|v| println!("{}", v));
+    */
 
     Ok(data)
 }
 
-pub fn place_piece(input: &InputData, region: &mut Matrix<bool>, remaining_pieces: Vec<u32>) {}
+pub fn place_piece(
+    region: &mut Matrix<bool>,
+    piece: &Matrix<bool>,
+    region_row: usize,
+    region_col: usize,
+) {
+    for piece_row in 0..piece.rows {
+        for piece_col in 0..piece.cols {
+            if piece.get(piece_row, piece_col) {
+                region.set(piece_row + region_row, piece_col + region_col, true);
+            }
+        }
+    }
+}
+
+/**
+ * check that the provide 3x3 piece fits in the provided region when placed with its upper left corner at region_row,region_col
+ */
+fn check_piece_fit(
+    region: &Matrix<bool>,
+    piece: &Matrix<bool>,
+    region_row: usize,
+    region_col: usize,
+) -> bool {
+    if region_col + piece.cols > region.cols {
+        return false;
+    }
+    if region_row + piece.rows > region.rows {
+        return false;
+    }
+
+    for piece_row in 0..piece.rows {
+        for piece_col in 0..piece.cols {
+            if piece.get(piece_row, piece_col)
+                && region.get(piece_row + region_row, piece_col + region_col)
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
 
 pub fn get_rotations(piece: &Matrix<bool>) -> HashSet<Matrix<bool>> {
     let mut rotated_pieces = HashSet::new();
