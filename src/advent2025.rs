@@ -9,3 +9,4 @@ pub mod puzzle8;
 pub mod puzzle9;
 pub mod puzzle10;
 pub mod puzzle11;
+pub mod puzzle12;
